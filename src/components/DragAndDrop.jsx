@@ -1,9 +1,12 @@
 import './draganddrop.css';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import uploadImg from "../assets/cloud-upload-regular-240.png"
 import Loading from "../assets/loading.png"
+
 export function DragAndDrop() {
-  const [processing, setProcessing] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const fileInputRef = useRef(null);
+
   const handleFileInput = (e) => {
     const file = e.target.files[0];
     handleFile(file);
@@ -28,6 +31,11 @@ export function DragAndDrop() {
         downloadLink.click();
         setProcessing(false);
         document.body.removeChild(downloadLink);
+
+        // Restablece el valor del input de archivo
+        if (fileInputRef.current) {
+          fileInputRef.current.value = null;
+        }
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -36,12 +44,13 @@ export function DragAndDrop() {
   };
 
   return (
-    <div className={`drop-file-input ${processing ? 'bg-[#212132]' : 'bg-[#f5f8ff15]'}`}>
+    <div className={`drop-file-input transition-all ${processing ? 'bg-[#212132]' : 'bg-[#f5f8ff15]'}`}>
       <div className="drop-file-input__label">
         <img className={processing ? 'rotating-image' : ''} src={processing ? Loading : uploadImg} alt="" />
-        <p>{processing ? "PROCESSING FILE, WAIT..." : "Drag & Drop your files here"}</p>
+        <p>{processing ? "PROCESANDO ARCHIVO. ESPERE..." : "Arrastra y suelta tu archivo aquí"}</p>
+        <p className='text-xs text-gray-500'>{processing ? "Esto puede tardar varios minutos." : ""}</p>
       </div>
-      <input type="file" onChange={handleFileInput} />
+      <input ref={fileInputRef} type="file" onChange={handleFileInput} />
     </div>
   )
 
